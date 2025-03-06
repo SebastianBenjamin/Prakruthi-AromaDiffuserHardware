@@ -19,7 +19,7 @@ Data{
     Device1{
       User: user                 // Associated user ID
       Status: Active/Inactive    // Device operational status
-      Dosha: Pitta/Vata/Kapha/PittaVata/PittaKapha/VataKapha  // Current Dosha setting
+      Dosha: Pittaj/Vataj/Kaphaj/PittajVataj/PittajKaphaj/VatajKaphaj  // Current Dosha setting
       SprayDelay: 5             // Spray interval in minutes (converted to ms: min*60000)
       LastUpdate: "12:00:00"    // Last spray timestamp
       Spray: 0/1               // Manual spray trigger
@@ -29,7 +29,7 @@ Data{
     user1{
       UserEmail: user1@example.com
       UserPassword: usersecret
-      Dosha: Pitta/Vata/Kapha/PittaVata/PittaKapha/VataKapha
+      Dosha: Pittaj/Vataj/Kaphaj/PittajVataj/PittajKaphaj/VatajKaphaj
     }
   }
 }
@@ -38,7 +38,7 @@ Data
 │   ├── Device1
 │   │   ├── User: user                  // Associated user ID
 │   │   ├── Status: Active/Inactive     // Device operational status
-│   │   ├── Dosha: Pitta/Vata/Kapha/... // Current Dosha setting
+│   │   ├── Dosha: Pittaj/Vataj/Kaphaj/... // Current Dosha setting
 │   │   ├── SprayDelay: 5               // Spray interval in minutes
 │   │   ├── LastUpdate: "12:00:00"      // Last spray timestamp
 │   │   ├── Spray: 0/1                  // Manual spray trigger
@@ -46,7 +46,7 @@ Data
 │   ├── Device2                         // Example for another device
 │       ├── User: user2
 │       ├── Status: Inactive
-│       ├── Dosha: VataKapha
+│       ├── Dosha: VatajKaphaj
 │       ├── SprayDelay: 10
 │       ├── LastUpdate: "13:30:00"
 │       ├── Spray: 0
@@ -55,12 +55,12 @@ Data
     ├── user1
     │   ├── UserEmail: user1@example.com
     │   ├── UserPassword: usersecret
-    │   ├── Dosha: Pitta
+    │   ├── Dosha: Pittaj
     │
     ├── user2
         ├── UserEmail: user2@example.com
         ├── UserPassword: user2secret
-        ├── Dosha: VataKapha
+        ├── Dosha: VatajKaphaj
 
 */
 
@@ -69,12 +69,12 @@ Data
  ****************************/
 /*
 ESP32 DevKit Pinout:
-- RELAY_P (Pitta)        : GPIO 13
-- RELAY_K (Kapha)        : GPIO 12
-- RELAY_V (Vata)         : GPIO 14
-- RELAY_PK (Pitta-Kapha) : GPIO 27
-- RELAY_PV (Pitta-Vata)  : GPIO 26
-- RELAY_VK (Vata-Kapha)  : GPIO 25
+- RELAY_P (Pittaj)        : GPIO 13
+- RELAY_K (Kaphaj)        : GPIO 12
+- RELAY_V (Vataj)         : GPIO 14
+- RELAY_PK (Pittaj-Kaphaj) : GPIO 27
+- RELAY_PV (Pittaj-Vataj)  : GPIO 26
+- RELAY_VK (Vataj-Kaphaj)  : GPIO 25
 - RELAY_FAN              : GPIO 33
 - WIFI_STATUS_LED        : GPIO 2
 - MANUAL_SPRAY_SWITCH    : GPIO 34 (Input only)
@@ -294,17 +294,17 @@ void initFirebase() {
     }
 }
 int getDoshaRelay(String dosha){
-  if (dosha == "Pitta") {
+  if (dosha == "Pittaj") {
     return RELAY_P;
-} else if (dosha == "Vata") {
+} else if (dosha == "Vataj") {
     return RELAY_V;
-} else if (dosha == "Kapha") {
+} else if (dosha == "Kaphaj") {
     return RELAY_K;
-} else if (dosha == "PittaVata") {
+} else if (dosha == "PittajVataj") {
     return RELAY_PV;
-} else if (dosha == "PittaKapha") {
+} else if (dosha == "PittajKaphaj") {
     return RELAY_PK;
-} else if (dosha == "VataKapha") {
+} else if (dosha == "VatajKaphaj") {
     return RELAY_VK;
 }else{
   return-1;
