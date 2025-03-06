@@ -19,7 +19,7 @@ Data{
     Device1{
       User: user                 // Associated user ID
       Status: Active/Inactive    // Device operational status
-      Dosha: Pittaj/Vataj/Kaphaj/VatajPittaj/PittajKaphaj/VatajKaphaj  // Current Dosha setting
+      Dosha: Pittaj/Vataj/Kaphaj/PittajVataj/PittajKaphaj/VatajKaphaj  // Current Dosha setting
       SprayDelay: 5             // Spray interval in minutes (converted to ms: min*60000)
       LastUpdate: "12:00:00"    // Last spray timestamp
       Spray: 0/1               // Manual spray trigger
@@ -29,7 +29,7 @@ Data{
     user1{
       UserEmail: user1@example.com
       UserPassword: usersecret
-      Dosha: Pittaj/Vataj/Kaphaj/VatajPittaj/PittajKaphaj/VatajKaphaj
+      Dosha: Pittaj/Vataj/Kaphaj/PittajVataj/PittajKaphaj/VatajKaphaj
     }
   }
 }
@@ -176,19 +176,20 @@ ESP32 DevKit Pinout:
 
 #define DEVICE_NUMBER "PABR2D0000000001"
 
-// WiFi Credentials
-#define WIFI_SSID "SmartEnergyControlSystem"
+// WiFi Credentials     
+#define WIFI_SSID "prakruthiaromadiffuser"
 #define WIFI_PASSWORD "12345678"
 
 // Firebase Credentials
 
-#define API_KEY "AIzaSyCZsHJnSoTnZQkTK_ia2ZBD-ZEoJW09thM"
-#define DATABASE_URL "smartenergycontrolsystem-default-rtdb.firebaseio.com"
+#define API_KEY "AIzaSyAgPbK7eGIWpq9Fe9IuP8lu6AslkXjSw-g"
+#define DATABASE_URL "prakriti-ml-default-rtdb.asia-southeast1.firebasedatabase.app"
 #define USER_EMAIL "benjaminsebastian4db@gmail.com"
-#define USER_PASSWORD "**********"
+#define USER_PASSWORD "database4benjamin"
 
 // Constants and Global Variables
 #define WIFI_CHECK_INTERVAL 5000
+#define RELAY_DELAY 5000
 unsigned long lastWifiCheck = 0;
 bool lastWifiState = false;  
 int SprayDelay=0;
@@ -197,9 +198,11 @@ int setDoshaRelay=-1;
 String CurrentUser="";
 String Dosha = "";
 unsigned long previousMillis = 0; 
-const unsigned long displayInterval = 2000; 
+const unsigned long displayInterval = 5000; 
 int displayState = 0; 
 int SprayFromDb=0;
+bool PrintedDeviceNumber=false;
+String LastUpdate="";
 
 // Objects
 FirebaseData fbdo;
@@ -207,7 +210,7 @@ FirebaseAuth auth;
 FirebaseConfig config;
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP, "pool.ntp.org", 19800, 60000);
+  NTPClient timeClient(ntpUDP, "pool.ntp.org", 19800, 60000);
 
 // Outputs and other Pins
 #define RELAY_P 13         
@@ -219,11 +222,14 @@ NTPClient timeClient(ntpUDP, "pool.ntp.org", 19800, 60000);
 #define RELAY_FAN 33       
 #define WIFI_STATUS_LED 2  
 #define MANNUAL_SPRAY_SWITCH 34 
+
 void errorLcdDisplay(String error){
   lcd.setCursor(0,0);
   lcd.print(" Error Occured !");
+  Serial.println(" Error Occured !");
   lcd.setCursor(0,1);
   lcd.print(error);
+  Serial.println(error);
 }
 void updateWiFiLED() {
     bool currentWifiState = (WiFi.status() == WL_CONNECTED);
@@ -237,7 +243,9 @@ void updateWiFiLED() {
             lcd.print("WiFi ");
             lcd.setCursor(0, 1);
             lcd.print(" Connected !");
+            Serial.println("WiFi Connected !");
         } else {
+            Serial.println("Continuing without WiFi !");
             lcd.setCursor(0, 0);
             lcd.print("Continuing  ");
             lcd.setCursor(0, 1);
@@ -292,6 +300,13 @@ void initFirebase() {
         config.database_url = DATABASE_URL;
         Firebase.begin(&config, &auth);
     }
+      Firebase.RTDB.setInt(&fbdo, String("/Data/Devices/") + DEVICE_NUMBER + "/Spray",0);
+      Firebase.RTDB.setString(&fbdo, String("/Data/Devices/") + DEVICE_NUMBER + "/Dosha","");
+      Firebase.RTDB.setInt(&fbdo, String("/Data/Devices/") + DEVICE_NUMBER + "/SprayDelay",0);
+      Firebase.RTDB.setString(&fbdo, String("/Data/Devices/") + DEVICE_NUMBER + "/Status","Inactive");
+      Firebase.RTDB.setString(&fbdo, String("/Data/Devices/") + DEVICE_NUMBER + "/User","");
+      Serial.println("Firebase initialisation compelete");
+     
 }
 int getDoshaRelay(String dosha){
   if (dosha == "Pittaj") {
@@ -313,13 +328,30 @@ int getDoshaRelay(String dosha){
 }
 void controlRelays(){
   if(setDoshaRelay!=-1){
-  digitalWrite(setDoshaRelay,HIGH);
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Spraying ")  ;
+    lcd.print(Dosha);
+    lcd.setCursor(0,1);
+    lcd.print("Aroma Now !");
+    Serial.print("Spraying ");
+    Serial.println(Dosha);
+  digitalWrite(setDoshaRelay,LOW);
+  digitalWrite(RELAY_FAN,LOW);
+  delay(RELAY_DELAY);
+   digitalWrite(setDoshaRelay,HIGH);
   digitalWrite(RELAY_FAN,HIGH);
-  delay(5000);
-   digitalWrite(setDoshaRelay,LOW);
-  digitalWrite(RELAY_FAN,LOW);}
+   Serial.print("Spraying Done ");
+    Serial.println(Dosha);
+     lcd.setCursor(0, 0);
+    lcd.print("Spraying Aroma")  ;
+    lcd.setCursor(0,1);
+    lcd.print("is compelete");
+  }
   else{
     errorLcdDisplay(" Dosha not set");
+    Serial.println("Dosha not set");
+    fetchSettings();
   }
 }
 void fetchSettings() {
@@ -335,42 +367,71 @@ void fetchSettings() {
         if (Firebase.RTDB.getString(&fbdo, String("/Data/Devices/") + DEVICE_NUMBER + "/Dosha")) {
             Dosha = fbdo.to<String>();
             setDoshaRelay = getDoshaRelay(Dosha);
-        } else if (Firebase.RTDB.getInt(&fbdo, String("/Data/Devices/") + DEVICE_NUMBER + "/SprayDelay")) {
+        } else {
+    Serial.print("Firebase Error: ");
+    Serial.println(fbdo.errorReason());
+    errorLcdDisplay("Firebase Err");
+}
+         if (Firebase.RTDB.getInt(&fbdo, String("/Data/Devices/") + DEVICE_NUMBER + "/SprayDelay")) {
             SprayDelay = (fbdo.to<int>()) * 60000;
-        }
-         else if (Firebase.RTDB.getString(&fbdo, String("/Data/Devices/") + DEVICE_NUMBER + "/User")) {
+        }else {
+    Serial.print("Firebase Error: ");
+    Serial.println(fbdo.errorReason());
+    errorLcdDisplay("Firebase Err");
+}
+          if (Firebase.RTDB.getString(&fbdo, String("/Data/Devices/") + DEVICE_NUMBER + "/User")) {
             CurrentUser = fbdo.to<String>();
         
-        } else if (Firebase.RTDB.getInt(&fbdo, String("/Data/Devices/") + DEVICE_NUMBER + "/Spray")) {
+        }else {
+    Serial.print("Firebase Error: ");
+    Serial.println(fbdo.errorReason());
+    errorLcdDisplay("Firebase Err");
+} 
+         if (Firebase.RTDB.getInt(&fbdo, String("/Data/Devices/") + DEVICE_NUMBER + "/Spray")) {
             SprayFromDb = fbdo.to<int>();
             if(SprayFromDb==1){
               controlRelays();
               Firebase.RTDB.setInt(&fbdo, String("/Data/Devices/") + DEVICE_NUMBER + "/Spray",0);
+               Firebase.RTDB.setString(&fbdo, String("/Data/Devices/")+DEVICE_NUMBER+"/LastUpdate", timeClient.getFormattedTime());
+    Serial.print("LastUpdate : ");
+    Serial.println(timeClient.getFormattedTime());
             }
-        }
+        }else {
+    Serial.print("Firebase Error: ");
+    Serial.println(fbdo.errorReason());
+    errorLcdDisplay("Firebase Err");
+}
+ if (Firebase.RTDB.getString(&fbdo, String("/Data/Devices/") + DEVICE_NUMBER + "/LastUpdate")) {
+            LastUpdate = fbdo.to<String>();
+        
+        }else {
+    Serial.print("Firebase Error: ");
+    Serial.println(fbdo.errorReason());
+    errorLcdDisplay("Firebase Err");
+} 
+Serial.println();
       Serial.print("Fetched Settings => \n");
       Serial.print("- System Status :");
       Serial.print(SystemStatus);
       Serial.print("\n- Dosha :");
       Serial.print(Dosha);
       Serial.print("\n- Spray Interval :");
-      Serial.print(SprayDelay/600000);
+      Serial.print((SprayDelay/60000));
       Serial.print(" Minutes or ");
       Serial.print(SprayDelay);
       Serial.println(" MilliSeconds");
+Serial.println();
 
 
-      } 
+      } else{
+        PrintedDeviceNumber=false;
+      }
     }
 }
 
 
 
-void resetFirebaseNodes() {
-    if (WiFi.status() == WL_CONNECTED) {
-        Firebase.RTDB.setString(&fbdo, String("/Data/Devices/")+DEVICE_NUMBER, "");
-    }
-}
+
 
 
 
@@ -384,18 +445,26 @@ void setup() {
     pinMode(RELAY_VK,OUTPUT);
     pinMode(RELAY_FAN,OUTPUT);
     pinMode(MANNUAL_SPRAY_SWITCH,INPUT_PULLUP);
+    digitalWrite(RELAY_P,HIGH);
+digitalWrite(RELAY_K,HIGH);
+digitalWrite(RELAY_V,HIGH);
+digitalWrite(RELAY_PK,HIGH);
+digitalWrite(RELAY_PV,HIGH);
+digitalWrite(RELAY_VK,HIGH);
+digitalWrite(RELAY_FAN,HIGH);
     lcd.init();
     lcd.backlight();
     lcd.setCursor(0, 0);
     lcd.print("Prakruthi Based");
     lcd.setCursor(0, 1);
     lcd.print(" Aroma Diffuser");
+    Serial.println("Prakruthi Based Aroma Diffuser");
+
     delay(4000);
     lcd.clear();
     
     connectWiFi();
     initFirebase();
-    resetFirebaseNodes();
     timeClient.begin();
 
 }
@@ -411,57 +480,124 @@ void handleDisplay(unsigned long currentMillis,unsigned long timeLeft){
         lcd.print(CurrentUser);
         lcd.setCursor(0, 1);
         lcd.print("Status: Active");
+    Serial.print("\nUser : ");
+    Serial.print(CurrentUser);
+    Serial.println("Status: Active ");
+
+
         displayState = 1;
         break;
 
       case 1:
         lcd.setCursor(0, 0);
-        lcd.print("Dosha:");
+        lcd.print("Dosha: ");
         lcd.print(Dosha);
         lcd.setCursor(0, 1);
         lcd.print("Delay: ");
-        lcd.print(SprayDelay);
+        lcd.print(SprayDelay/60000);
         lcd.print("mins");
-
+      Serial.print("Dosha : ");
+    Serial.print(Dosha);
+    Serial.print("\n Delay: ");
+    Serial.println(SprayDelay);
         displayState = 2;
         break;
 
       case 2:
+       lcd.setCursor(0, 0);
+        lcd.print("Dosha  : ");
+        lcd.print(Dosha);
         lcd.setCursor(0, 1);
         lcd.print("Next in: ");
         lcd.print(timeLeft);
         lcd.print("mins");
+        Serial.print(" \nNext in: ");
+    Serial.println(timeLeft);
 
-        displayState = 0;
+        displayState = 3;
         break;
+        case 3:
+        lcd.setCursor(0, 0);
+    lcd.print("Prakruthi Based");
+    lcd.setCursor(0, 1);
+    lcd.print(" Aroma Diffuser");
+    displayState=4;
+    break;
+        case 4:
+        for(int i=0;i<(displayInterval/1000);i++){
+        lcd.setCursor(0, 0);
+    lcd.print("Time ");
+    lcd.print(timeClient.getFormattedTime());
+    lcd.setCursor(0, 1);
+    lcd.print("Last ");
+    lcd.print(LastUpdate);
+    delay(1000);
+    }
+    displayState=0;
+    break;
     }
   }
 }
 
 void loop() {
+  
+  fetchSettings();
   unsigned long currentMillis = millis();
+  unsigned long SprayTime = currentMillis;
+  while(SystemStatus&&WiFi.status() == WL_CONNECTED){
+    
+    currentMillis = millis();
+
   int switchState=digitalRead(MANNUAL_SPRAY_SWITCH);
- if(currentMillis>=SprayDelay||switchState==LOW){
+  // Serial.print("\nswitch status : ");
+  // Serial.print(switchState);
+  // Serial.print("\nSpray delay : ");
+  // Serial.print(SprayDelay);
+  // Serial.print("\nCurrent time : ");
+  // Serial.println(currentMillis);
+  // Serial.println();
+  
+ if(currentMillis>=SprayTime){
+  Serial.print("\nswitch status : ");
+  Serial.print(switchState);
+  Serial.print("\nSpray delay : ");
+  Serial.print(SprayDelay);
+  Serial.print("\nCurrent time : ");
+  Serial.println(currentMillis);
  controlRelays();
   timeClient.update();
    Firebase.RTDB.setString(&fbdo, String("/Data/Devices/")+DEVICE_NUMBER+"/LastUpdate", timeClient.getFormattedTime());
-  
- SprayDelay = currentMillis +SprayDelay;
+    Serial.print("LastUpdate : ");
+    Serial.println(timeClient.getFormattedTime());
+SprayTime=currentMillis+SprayDelay;
+
  }
-unsigned long timeLeft = (SprayDelay > currentMillis) ? (SprayDelay - currentMillis) : 0;
+unsigned long timeLeft = (SprayTime > currentMillis) ? (SprayTime - currentMillis) : 0;
   timeLeft=timeLeft/60000;
   
 
   if (currentMillis - lastWifiCheck >= WIFI_CHECK_INTERVAL) {
             updateWiFiLED();
-            fetchSettings();
         if (WiFi.status() != WL_CONNECTED) {
             WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
         }
         
         lastWifiCheck = currentMillis;
     }
+            fetchSettings();
  handleDisplay(currentMillis,timeLeft);
+  }
+  if(!PrintedDeviceNumber){
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("System Inactive ");
+    lcd.setCursor(0,1);
+    lcd.print(DEVICE_NUMBER);
+  Serial.println("System Inactive");
+  Serial.print("System number : ");
+  Serial.println(DEVICE_NUMBER);
+  PrintedDeviceNumber=true;
+  }
 
 }
 
