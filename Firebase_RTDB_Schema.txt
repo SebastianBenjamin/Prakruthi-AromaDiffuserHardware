@@ -1,0 +1,48 @@
+Data{
+  Devices{
+    Device1{
+      User: user                 // Associated user ID
+      Status: Active/Inactive    // Device operational status
+      Dosha: Pitta/Vata/Kapha/PittaVata/PittaKapha/VataKapha  // Current Dosha setting
+      SprayDelay: 5             // Spray interval in minutes (converted to ms: min*60000 , u don't need to convert make this as a select tag or range 1-100min)
+      LastUpdate: "12:00:00"    // Last spray timestamp
+      Spray: 0/1               // Manual spray trigger
+    }
+  },
+  Users{
+    user1{
+      UserEmail: user1@example.com
+      UserPassword: usersecret
+      Dosha: Pitta/Vata/Kapha/PittaVata/PittaKapha/VataKapha
+    }
+  }
+}
+------------------------------------------------------------------------------------------------------------------------------
+Data
+├── Devices
+│   ├── Device1
+│   │   ├── User: user                  // Associated user ID
+│   │   ├── Status: Active/Inactive     // Device operational status
+│   │   ├── Dosha: Pitta/Vata/Kapha/... // Current Dosha setting
+│   │   ├── SprayDelay: 5               // Spray interval in minutes
+│   │   ├── LastUpdate: "12:00:00"      // Last spray timestamp
+│   │   ├── Spray: 0/1                  // Manual spray trigger
+│   │
+│   ├── Device2                         // Example for another device
+│       ├── User: user2
+│       ├── Status: Inactive
+│       ├── Dosha: VataKapha
+│       ├── SprayDelay: 10
+│       ├── LastUpdate: "13:30:00"
+│       ├── Spray: 0
+│
+├── Users
+    ├── user1
+    │   ├── UserEmail: user1@example.com
+    │   ├── UserPassword: usersecret
+    │   ├── Dosha: Pitta
+    │
+    ├── user2
+        ├── UserEmail: user2@example.com
+        ├── UserPassword: user2secret
+        ├── Dosha: VataKapha
