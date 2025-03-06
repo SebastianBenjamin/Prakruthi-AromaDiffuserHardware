@@ -17,7 +17,7 @@ Lol this is AI optimized version of code version 1 i.e PrakruthiAromaDiffuser.in
 #define API_KEY "AIzaSyCZsHJnSoTnZQkTK_ia2ZBD-ZEoJW09thM"
 #define DATABASE_URL "smartenergycontrolsystem-default-rtdb.firebaseio.com"
 #define USER_EMAIL "benjaminsebastian4db@gmail.com"
-#define USER_PASSWORD "database4benjamin"
+#define USER_PASSWORD "****************"
 
 // Constants and Global Variables
 #define WIFI_CHECK_INTERVAL 5000
