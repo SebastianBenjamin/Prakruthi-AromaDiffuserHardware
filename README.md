@@ -1,4 +1,4 @@
-# Prakriti Dosha Application
+# [Prakriti Dosha Application](https://aromadiffuserdevice.netlify.app/)
 
 ## Overview
 
