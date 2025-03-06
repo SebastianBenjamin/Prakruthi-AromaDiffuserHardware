@@ -19,7 +19,7 @@ Data{
     Device1{
       User: user                 // Associated user ID
       Status: Active/Inactive    // Device operational status
-      Dosha: Pittaj/Vataj/Kaphaj/PittajVataj/PittajKaphaj/VatajKaphaj  // Current Dosha setting
+      Dosha: Pittaj/Vataj/Kaphaj/VatajPittaj/PittajKaphaj/VatajKaphaj  // Current Dosha setting
       SprayDelay: 5             // Spray interval in minutes (converted to ms: min*60000)
       LastUpdate: "12:00:00"    // Last spray timestamp
       Spray: 0/1               // Manual spray trigger
@@ -29,7 +29,7 @@ Data{
     user1{
       UserEmail: user1@example.com
       UserPassword: usersecret
-      Dosha: Pittaj/Vataj/Kaphaj/PittajVataj/PittajKaphaj/VatajKaphaj
+      Dosha: Pittaj/Vataj/Kaphaj/VatajPittaj/PittajKaphaj/VatajKaphaj
     }
   }
 }
@@ -300,7 +300,7 @@ int getDoshaRelay(String dosha){
     return RELAY_V;
 } else if (dosha == "Kaphaj") {
     return RELAY_K;
-} else if (dosha == "PittajVataj") {
+} else if (dosha == "VatajPittaj") {
     return RELAY_PV;
 } else if (dosha == "PittajKaphaj") {
     return RELAY_PK;
