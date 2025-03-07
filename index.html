@@ -536,7 +536,7 @@
             };
         }
         function calculateDosha(answers) {
-    const doshaScores = { Vataj: 0, Pittaj: 0, Kaphaj: 0 };
+    const doshaScores = { Vata: 0, Pitta: 0, Kapha: 0 };
     console.log("Answers Array:", answers);
     // Count occurrences of each dosha
     answers.forEach(answer => {
@@ -547,31 +547,31 @@
 
     // Convert counts to percentages
     const doshaPercentages = {
-        Vataj: Math.round((doshaScores.Vataj / 10) * 100),
-        Pittaj: Math.round((doshaScores.Pittaj / 10) * 100),
-        Kaphaj: Math.round((doshaScores.Kaphaj / 10) * 100)
+        Vata: Math.round((doshaScores.Vata / 10) * 100),
+        Pitta: Math.round((doshaScores.Pitta / 10) * 100),
+        Kapha: Math.round((doshaScores.Kapha / 10) * 100)
     };
-    console.log("Dosha Percentages:", doshaScores.Vataj);
-  console.log("Dosha Percentages:", doshaScores.Pittaj); 
-    console.log("Dosha Percentages:", doshaScores.Kaphaj); 
+    console.log("Dosha Percentages:", doshaScores.Vata);
+  console.log("Dosha Percentages:", doshaScores.Pitta); 
+    console.log("Dosha Percentages:", doshaScores.Kapha); 
 
     console.log("Dosha Percentages:", doshaPercentages); // Debugging output
 
     let dosha = '';
 
     // ✅ Tridosha (All Equal)
-    if (doshaPercentages.Vataj === doshaPercentages.Pittaj &&
-        doshaPercentages.Pittaj === doshaPercentages.Kaphaj) {
+    if (doshaPercentages.Vata === doshaPercentages.Pitta &&
+        doshaPercentages.Pitta === doshaPercentages.Kapha) {
         dosha = 'Tridosha';
     }
     // ✅ Single Dominant Dosha
-    else if (doshaPercentages.Vataj === 100) {
+    else if (doshaPercentages.Vata === 100) {
         dosha = 'Vataj';
     } 
-    else if (doshaPercentages.Pittaj === 100) {
+    else if (doshaPercentages.Pitta === 100) {
         dosha = 'Pittaj';
     } 
-    else if (doshaPercentages.Kaphaj === 100) {
+    else if (doshaPercentages.Kapha === 100) {
         dosha = 'Kaphaj';
     } else if (
     doshaPercentages.Kaphaj >= 70 &&
@@ -593,16 +593,16 @@
     dosha = 'Vataj';
 } 
     // ✅ Two Dominant Doshas
-    else if (doshaPercentages.Vataj >= doshaPercentages.Kaphaj &&
-             doshaPercentages.Pittaj >= doshaPercentages.Kaphaj) {
+    else if (doshaPercentages.Vata >= doshaPercentages.Kapha &&
+             doshaPercentages.Pitta >= doshaPercentages.Kapha) {
         dosha = 'VatajPittaj';
     } 
-    else if (doshaPercentages.Pittaj >= doshaPercentages.Vataj &&
-             doshaPercentages.Kaphaj >= doshaPercentages.Vataj) {
+    else if (doshaPercentages.Pitta >= doshaPercentages.Vata &&
+             doshaPercentages.Kapha >= doshaPercentages.Vata) {
         dosha = 'PittajKaphaj';
     } 
-    else if (doshaPercentages.Vataj >= doshaPercentages.Pittaj &&
-             doshaPercentages.Kaphaj >= doshaPercentages.Pittaj) {
+    else if (doshaPercentages.Vata >= doshaPercentages.Pitta &&
+             doshaPercentages.Kapha >= doshaPercentages.Pitta) {
         dosha = 'VatajKaphaj';
     }
     // ✅ Fallback (Should Never Happen)
