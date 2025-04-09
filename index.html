@@ -562,7 +562,7 @@
     // ✅ Tridosha (All Equal)
     if (doshaPercentages.Vata === doshaPercentages.Pitta &&
         doshaPercentages.Pitta === doshaPercentages.Kapha) {
-        dosha = 'Tridosha';
+        dosha = 'Vataj';//tridosha
     }
     // ✅ Single Dominant Dosha
     else if (doshaPercentages.Vata === 100) {
@@ -572,13 +572,13 @@
         dosha = 'Pittaj';
     } 
     else if (doshaPercentages.Kapha === 100) {
-        dosha = 'Kaphaj';
+        dosha = 'Pittaj';// change to Kaphaj
     } else if (
     doshaPercentages.Kaphaj >= 70 &&
     doshaPercentages.Pittaj < 20 &&
     doshaPercentages.Vataj < 20
 ) {
-    dosha = 'Kaphaj';
+    dosha = 'VatajKaphaj';//change to kaphaj
 } else if (
     doshaPercentages.Pittaj >= 70 &&
     doshaPercentages.Kaphaj < 20 &&
@@ -595,15 +595,15 @@
     // ✅ Two Dominant Doshas
     else if (doshaPercentages.Vata >= doshaPercentages.Kapha &&
              doshaPercentages.Pitta >= doshaPercentages.Kapha) {
-        dosha = 'VatajPittaj';
+        dosha = 'VatajKaphaj';//vp
     } 
     else if (doshaPercentages.Pitta >= doshaPercentages.Vata &&
              doshaPercentages.Kapha >= doshaPercentages.Vata) {
-        dosha = 'PittajKaphaj';
+        dosha = 'Pittaj';//pk
     } 
     else if (doshaPercentages.Vata >= doshaPercentages.Pitta &&
              doshaPercentages.Kapha >= doshaPercentages.Pitta) {
-        dosha = 'VatajKaphaj';
+        dosha = 'Vataj';//vk
     }
     // ✅ Fallback (Should Never Happen)
     else {
